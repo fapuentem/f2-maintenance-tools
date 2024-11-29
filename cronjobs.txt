@@ -1,0 +1,4 @@
+# Open the cronjobs file with sudo cronjobs -e
+
+@reboot sleep 150; /bin/python3 /home/nvidia/projects/F2-App/main.py
+*/15 * * * * bash /home/nvidia/tools/network-monitoring-f2.sh >> /home/nvidia/tools/logs/network-monitoring-f2.log

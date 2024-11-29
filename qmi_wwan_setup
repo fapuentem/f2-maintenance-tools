@@ -1,0 +1,161 @@
+#!/bin/sh
+# /etc/init.d/qmi_wwan_setup
+
+### BEGIN INIT INFO
+# Provides:          qmi_wwan_setup
+# Required-Start:    $network $remote_fs $syslog
+# Required-Stop:     $network $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Sets up qmi_wwan module
+# Description:       This script configures qmi_wwan on startup.
+### END INIT INFO
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+LOG_FILE="/var/log/qmi_wwan_setup.log"
+
+log() {
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $@" | tee -a "$LOG_FILE"
+}
+
+set_operating_mode_online() {
+    log 'Setting operating mode to online.'
+    # Initial attempt counter
+    attempt=1
+    max_attempts=5
+    sleep_time=10 # Adjusted sleep time since this operation might not need as long to retry
+
+    while : ; do
+        qmicli_output=$(qmicli -d /dev/cdc-wdm0 --dms-set-operating-mode='online' 2>&1)
+        echo "$qmicli_output" | tee -a "$LOG_FILE"
+        echo "$qmicli_output" | grep -q "Operating mode set successfully"
+        if [ $? -eq 0 ]; then
+            log 'Successfully set operating mode to online.'
+            break
+        else
+            log "Attempt $attempt: Failed to set operating mode to online. Retrying in $sleep_time seconds..."
+            if [ $attempt -ge $max_attempts ]; then
+                log 'Maximum attempts reached. Exiting.'
+                return 1
+            fi
+            sleep $sleep_time
+        fi
+        attempt=$((attempt+1))
+    done
+}
+
+check_data_format() {
+    log 'Confirming data format.'
+    # Initial attempt counter
+    attempt=1
+    max_attempts=5
+    sleep_time=10
+
+    success_msg="Successfully got data format"
+
+    while : ; do
+        qmicli_output=$(qmicli -d /dev/cdc-wdm0 --wda-get-data-format 2>&1)
+        echo "$qmicli_output" >> "$LOG_FILE"
+        
+        # Check if the success message is in the output
+        if echo "$qmicli_output" | grep -q "$success_msg"; then
+            log "$success_msg"
+            break
+        else
+            log "Attempt $attempt: Failed to confirm data format. Retrying in $sleep_time seconds..."
+            if [ $attempt -ge $max_attempts ]; then
+                log 'Maximum attempts reached. Exiting.'
+                return 1
+            fi
+            sleep $sleep_time
+        fi
+        attempt=$((attempt+1))
+    done
+}
+
+start_qmi() {
+    log 'Configuring APN settings.'
+    # Initial attempt counter
+    attempt=1
+    max_attempts=5
+    sleep_time=30
+
+    while : ; do
+        qmicli_output=$(qmicli -p -d /dev/cdc-wdm0 --device-open-net='net-raw-ip|net-no-qos-header' --wds-start-network="apn='internet.swir',ip-type=4" --client-no-release-cid 2>&1)
+        echo "$qmicli_output" | tee -a "$LOG_FILE"
+        echo "$qmicli_output" | grep "Packet data handle:"
+        if [ $? -eq 0 ]; then
+            log 'Successfully started network with packet data handle.'
+            break
+        else
+            log "Attempt $attempt: Failed to start network. Retrying in $sleep_time seconds..."
+            if [ $attempt -ge $max_attempts ]; then
+                log 'Maximum attempts reached. Exiting.'
+                return 1
+            fi
+            sleep $sleep_time
+        fi
+        attempt=$((attempt+1))
+    done
+}
+
+case "$1" in
+    start)
+        # Your configuration commands go here
+        log 'Starting QMI WWAN setup.'
+        log 'Sleeping for 90 seconds to allow system stabilization.'
+	sleep 90
+	
+	log 'Getting operating mode.'
+	qmicli -d /dev/cdc-wdm0 --dms-get-operating-mode >> "$LOG_FILE" 2>&1
+	sleep 30 
+
+	# log 'Setting operating mode to online.'
+	# qmicli -d /dev/cdc-wdm0 --dms-set-operating-mode='online' >> "$LOG_FILE" 2>&1
+	set_operating_mode_online
+	
+	log 'Bringing wwan0 interface down.'
+	ip link set wwan0 down
+	log 'Sleeping for 10 seconds before next step.'
+	sleep 10
+	
+	log 'Setting raw IP mode on wwan0 interface.'
+	echo 'Y' | tee /sys/class/net/wwan0/qmi/raw_ip >> "$LOG_FILE" 2>&1
+	
+	log 'Bringing wwan0 interface up.'
+	ip link set wwan0 up
+	log 'Sleeping for 30 seconds to ensure interface is up.'
+	sleep 30
+
+	# log 'Confirming data format.'
+	# qmicli -d /dev/cdc-wdm0 --wda-get-data-format >> "$LOG_FILE" 2>&1
+	check_data_format
+
+	log 'Sleeping for 15 seconds before setting APN.'
+	sleep 15
+	# log 'Configuring APN settings.'
+	# qmicli -p -d /dev/cdc-wdm0 --device-open-net='net-raw-ip|net-no-qos-header' --wds-start-network="apn='internet.swir',ip-type=4" --client-no-release-cid >> "$LOG_FILE" 2>&1
+	start_qmi
+	sleep 30
+
+	log 'Configuring DHCP client.'
+	udhcpc -q -f -i wwan0 >> "$LOG_FILE" 2>&1
+	
+	log 'Removing existing default routes for wwan0 (if any).'
+	ip route del default dev wwan0 || true
+
+	log 'Adjusting route metric for wwan0'
+	# Change the metric for the default route via wwan0	
+	ip route replace default via $(ip -4 addr show wwan0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}') dev wwan0 metric 100
+	;; 
+    stop)
+        # Any cleanup commands go here
+        log 'Stopping QMI WWAN setup.'
+        ;; 
+    ,*)
+        echo "Usage: /etc/init.d/qmi_wwan_setup {start|stop}" | tee -a "$LOG_FILE"
+        exit 1
+        ;;
+esac
+
+exit 0

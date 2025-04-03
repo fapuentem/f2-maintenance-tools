@@ -1,0 +1,121 @@
+#+TITLE: Monthly Jetson Orin Health Check
+#+DATE:<2025-04-03 Thu>
+
+* Device: <hostname_or_IP_address_1>
+
+** System Resource Monitoring [0/5]
+- [ ] CPU Usage:
+   #+BEGIN_SRC bash
+     top -bn1 | grep '^%Cpu' | awk '{print $2}'
+   #+END_SRC
+
+   #+RESULTS:
+   : 2.0
+
+- [ ] Memory Usage:
+   #+BEGIN_SRC bash
+     free -h 
+   #+END_SRC
+
+   #+RESULTS:
+   | total | used  | free  | shared | buff/cache | available |       |
+   | Mem:  | 15Gi  | 6.2Gi | 3.7Gi  | 866Mi      | 5.4Gi     | 7.9Gi |
+   | Swap: | 2.0Gi | 0B    | 2.0Gi  |            |           |       |
+
+- [ ] Disk Usage:
+   #+BEGIN_SRC bash
+     df -h
+   #+END_SRC
+
+   #+RESULTS:
+   | Filesystem     | Size | Used | Avail | Use% | Mounted                   | on |
+   | tmpfs          | 1.6G | 2.7M | 1.6G  |   1% | /run                      |    |
+   | efivarfs       | 438K | 336K | 98K   |  78% | /sys/firmware/efi/efivars |    |
+   | /dev/nvme0n1p3 | 926G | 38G  | 841G  |   5% | /                         |    |
+   | tmpfs          | 7.7G | 123M | 7.6G  |   2% | /dev/shm                  |    |
+   | tmpfs          | 5.0M | 4.0K | 5.0M  |   1% | /run/lock                 |    |
+   | /dev/nvme0n1p1 | 996M | 94M  | 903M  |  10% | /boot/efi                 |    |
+   | tmpfs          | 1.6G | 164K | 1.6G  |   1% | /run/user/1001            |    |
+
+- [ ] Disk I/O:
+   #+BEGIN_SRC bash
+     iostat -d -k 1 1
+   #+END_SRC
+
+   #+RESULTS:
+
+- [ ] Network Interface Status:
+   #+BEGIN_SRC bash
+     ip a
+   #+END_SRC
+
+   #+RESULTS:
+
+   #+BEGIN_SRC bash
+     netstat -s | grep -i 'error\\|drop'
+   #+END_SRC
+
+   #+RESULTS:
+
+** Jetson Specific Monitoring
+- [ ] GPU Usage:
+  #+BEGIN_SRC bash
+    tegrastats
+  #+END_SRC
+  
+- [ ] Thermal Monitoring:
+  #+BEGIN_SRC bash
+    tegrastats
+  #+END_SRC
+
+** Application Specific Monitoring
+*** F2_App
+ - [ ] Application Process Status (<F2_App>):
+   #+BEGIN_SRC bash
+     pgrep F2-App
+   #+END_SRC
+
+ - [ ] Application Logs (<F2_App>):
+   #+BEGIN_SRC bash
+     tail -n 20 /home/nvidia/projects/F2-App/logs/app.log
+   #+END_SRC
+
+ - [ ] Application Resource Usage (<F2_App>):
+   #+BEGIN_SRC bash
+     ps -aux | grep F2-App
+   #+END_SRC
+
+*** F2_App_fanstel_ble
+ - [ ] Application Process Status (<F2_App_fanstel_ble>):
+   #+BEGIN_SRC bash
+     pgrep F2_App_fanstel_ble
+   #+END_SRC
+
+ - [ ] Application Logs (<F2_App_fanstel_ble>):
+   #+BEGIN_SRC bash
+     tail -n 20 /home/nvidia/projects/F2_App_fanstel_ble/logs/app.log
+   #+END_SRC
+
+ - [ ] Application Resource Usage (<F2_App_fanstel_ble>):
+   #+BEGIN_SRC bash
+     ps -aux | grep F2_App_fanstel_ble
+   #+END_SRC
+
+   
+** System Health and Configuration
+ - [ ] System Uptime:
+   #+BEGIN_SRC bash
+     uptime
+   #+END_SRC
+
+   #+RESULTS:
+   | 14:52:48 up  6:04 | 1 user | load average: 0.35 | 0.31 | 0.35 |
+
+ - [ ] System Logs (Errors):
+   #+BEGIN_SRC bash
+     journalctl -p err | tail -25
+   #+END_SRC
+
+   #+RESULTS:
+  
+

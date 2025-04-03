@@ -6,4 +6,4 @@ alias status-f2='ps ax | grep [F]2-App'
 alias sn-som-f2='cat /sys/firmware/devicetree/base/serial-number'
 alias sn-board-f2="sudo i2ctransfer -f -y 1 w1@0x58 0x80 r16 | sed 's/0x//g'"
 # Add tools folder at PATH
-export PATH="$HOME/tools:$PATH"
+export PATH="$HOME/tools/f2-maintenance-tools:$PATH"

@@ -85,7 +85,7 @@
        link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
        inet 127.0.0.1/8 scope host lo
 	  valid_lft forever preferred_lft forever
-       inet6 ::1/128 scope host 
+       inet6 ::1/128 scope host
 	  valid_lft forever preferred_lft forever
    2: dummy0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default qlen 1000
        link/ether fe:09:02:b8:c2:5e brd ff:ff:ff:ff:ff:ff
@@ -94,11 +94,11 @@
        altname enP8p1s0
        inet 192.168.1.237/24 brd 192.168.1.255 scope global dynamic noprefixroute eth0
 	  valid_lft 84158sec preferred_lft 84158sec
-       inet6 fdce:b912:83d9:b243:16a3:d699:12de:e881/64 scope global temporary dynamic 
+       inet6 fdce:b912:83d9:b243:16a3:d699:12de:e881/64 scope global temporary dynamic
 	  valid_lft 1758sec preferred_lft 1758sec
-       inet6 fdce:b912:83d9:b243:3fdb:e976:e573:fb56/64 scope global dynamic mngtmpaddr noprefixroute 
+       inet6 fdce:b912:83d9:b243:3fdb:e976:e573:fb56/64 scope global dynamic mngtmpaddr noprefixroute
 	  valid_lft 1758sec preferred_lft 1758sec
-       inet6 fe80::9b91:c5cf:df3f:ce75/64 scope link noprefixroute 
+       inet6 fe80::9b91:c5cf:df3f:ce75/64 scope link noprefixroute
 	  valid_lft forever preferred_lft forever
    4: wlan0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default qlen 1000
        link/ether 3c:e9:f7:77:55:dd brd ff:ff:ff:ff:ff:ff
@@ -182,7 +182,7 @@
 
  - [ ] Application Logs (<F2_App_fanstel_ble>):
    #+BEGIN_SRC bash
-     tail -n 20 /home/nvidia/projects/F2_App_fanstel_ble/logs/app.log
+     tail -n 20 /home/nvidia/projects/F2_App_fanstel_ble/logs/ble-app.log
    #+END_SRC
 
    #+RESULTS:

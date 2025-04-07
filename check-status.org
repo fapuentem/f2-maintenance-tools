@@ -30,22 +30,22 @@
 
 
 
-** System Resource Monitoring [5/5]
-- [X] CPU Usage:
+** System Resource Monitoring [0/5]
+- [ ] CPU Usage:
    #+BEGIN_SRC bash
      top -bn1 | grep '^%Cpu' | awk '{print $2}'
    #+END_SRC
 
    #+RESULTS:
 
-- [X] Memory Usage:
+- [ ] Memory Usage:
    #+BEGIN_SRC sh
      free -h
    #+END_SRC
 
    #+RESULTS:
 
-- [X] Disk Usage:
+- [ ] Disk Usage:
    #+BEGIN_SRC sh
      df -h
    #+END_SRC
@@ -55,14 +55,14 @@
 
    #+end_example
 
-- [X] Disk I/O:
+- [ ] Disk I/O:
    #+BEGIN_SRC bash
      iostat -d -k 1 1
    #+END_SRC
 
    #+RESULTS:
 
-- [X] Network Interface Status:
+- [ ] Network Interface Status:
    #+BEGIN_SRC bash
      ip a
    #+END_SRC
@@ -78,15 +78,15 @@
 
    #+RESULTS:
 
-** Jetson Specific Monitoring [2/2]
-- [X] GPU Usage:
+** Jetson Specific Monitoring [0/2]
+- [ ] GPU Usage:
   #+BEGIN_SRC bash
     tegrastats | head -1
   #+END_SRC
 
   #+RESULTS:
 
-- [X] Thermal Monitoring:
+- [ ] Thermal Monitoring:
   #+BEGIN_SRC bash
     tegrastats | head  -1 | awk '{print $17,$18,$19.$20,$21,$22,$23,$24,$25}'
   #+END_SRC
@@ -152,14 +152,14 @@
    #+RESULTS:
 
 ** System Health and Configuration
- - [X] System Uptime:
+ - [ ] System Uptime:
    #+BEGIN_SRC bash
      uptime
    #+END_SRC
 
    #+RESULTS:
 
- - [X] System Logs (Errors):
+ - [ ] System Logs (Errors):
    #+BEGIN_SRC bash
      journalctl -p err | tail -25
    #+END_SRC

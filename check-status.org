@@ -1,12 +1,12 @@
 #+TITLE: Monthly Jetson Orin Health Check
-#+DATE:<2025-04-03 Thu>
+#+DATE: <2025-04-03 Thu>
 
 #+PROPERTY: header-args:bash :results output replace
 #+PROPERTY: header-args:sh :results output replace
 
 * Device:
 #+NAME: get-f2-id
-#+BEGIN_SRC bash :results output raw
+#+BEGIN_SRC bash
   get_formatted_mac() {
     # Extract MAC address from 'ifconfig' command's output
     local mac_address=$(ifconfig eth0 | grep 'ether' | awk '{print $2}')
@@ -20,14 +20,15 @@
     # Print the result (useful for capturing return value)
     echo "$result"
    }
-g  # Get F2 id
+  # Get F2 id
   # get_formatted_mac
   f2_formatted_mac=$(get_formatted_mac)
   echo "$f2_formatted_mac"
 #+END_SRC
 
 #+RESULTS: get-f2-id
-f2_
+
+
 
 ** System Resource Monitoring [5/5]
 - [X] CPU Usage:
@@ -36,7 +37,6 @@ f2_
    #+END_SRC
 
    #+RESULTS:
-   : 4.5
 
 - [X] Memory Usage:
    #+BEGIN_SRC sh
@@ -44,9 +44,6 @@ f2_
    #+END_SRC
 
    #+RESULTS:
-   :               total        used        free      shared  buff/cache   available
-   : Mem:          7.3Gi       692Mi       5.8Gi        28Mi       837Mi       6.4Gi
-   : Swap:         3.6Gi          0B       3.6Gi
 
 - [X] Disk Usage:
    #+BEGIN_SRC sh
@@ -55,18 +52,7 @@ f2_
 
    #+RESULTS:
    #+begin_example
-   Filesystem      Size  Used Avail Use% Mounted on
-   /dev/nvme0n1p1  116G  8.1G  102G   8% /
-   none            3.6G     0  3.6G   0% /dev
-   tmpfs           3.7G   52K  3.7G   1% /dev/shm
-   tmpfs           748M   27M  721M   4% /run
-   tmpfs           5.0M  4.0K  5.0M   1% /run/lock
-   tmpfs           3.7G     0  3.7G   0% /sys/fs/cgroup
-   /dev/loop0      382M  382M     0 100% /snap/emacs/2792
-   /dev/loop1       39M   39M     0 100% /snap/snapd/23772
-   /dev/loop2       62M   62M     0 100% /snap/core24/741
-   tmpfs           748M   16K  748M   1% /run/user/124
-   tmpfs           748M  8.0K  748M   1% /run/user/1000
+
    #+end_example
 
 - [X] Disk I/O:
@@ -83,34 +69,7 @@ f2_
 
    #+RESULTS:
    #+begin_example
-   1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-       link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-       inet 127.0.0.1/8 scope host lo
-          valid_lft forever preferred_lft forever
-       inet6 ::1/128 scope host
-          valid_lft forever preferred_lft forever
-   2: dummy0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN group default qlen 1000
-       link/ether fe:09:02:b8:c2:5e brd ff:ff:ff:ff:ff:ff
-   3: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
-       link/ether 48:b0:2d:e9:c5:7d brd ff:ff:ff:ff:ff:ff
-       altname enP8p1s0
-       inet 192.168.1.237/24 brd 192.168.1.255 scope global dynamic noprefixroute eth0
-          valid_lft 84158sec preferred_lft 84158sec
-       inet6 fdce:b912:83d9:b243:16a3:d699:12de:e881/64 scope global temporary dynamic
-          valid_lft 1758sec preferred_lft 1758sec
-       inet6 fdce:b912:83d9:b243:3fdb:e976:e573:fb56/64 scope global dynamic mngtmpaddr noprefixroute
-          valid_lft 1758sec preferred_lft 1758sec
-       inet6 fe80::9b91:c5cf:df3f:ce75/64 scope link noprefixroute
-          valid_lft forever preferred_lft forever
-   4: wlan0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default qlen 1000
-       link/ether 3c:e9:f7:77:55:dd brd ff:ff:ff:ff:ff:ff
-       altname wlP1p1s0
-   5: l4tbr0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
-       link/ether fa:14:4e:5d:a5:19 brd ff:ff:ff:ff:ff:ff
-   6: rndis0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast master l4tbr0 state DOWN group default qlen 1000
-       link/ether fa:14:4e:5d:a5:19 brd ff:ff:ff:ff:ff:ff
-   7: usb0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast master l4tbr0 state DOWN group default qlen 1000
-       link/ether fa:14:4e:5d:a5:1b brd ff:ff:ff:ff:ff:ff
+
    #+end_example
 
    #+BEGIN_SRC bash
@@ -126,7 +85,6 @@ f2_
   #+END_SRC
 
   #+RESULTS:
-  : 04-04-2025 15:49:34 RAM 783/7471MB (lfb 1455x4MB) SWAP 0/3736MB (cached 0MB) CPU [7%@1420,0%@1420,1%@1420,3%@1420,off,off] EMC_FREQ 0% GR3D_FREQ 0%@[0] CV0@50.437C CPU@53.375C iwlwifi@39C SOC2@51.437C SOC0@52.468C CV1@50.656C GPU@50.437C tj@55.562C SOC1@55.562C CV2@51.75C
 
 - [X] Thermal Monitoring:
   #+BEGIN_SRC bash
@@ -134,7 +92,6 @@ f2_
   #+END_SRC
 
   #+RESULTS:
-  : CV0@50.437C CPU@53.437C iwlwifi@39CSOC2@51.375C SOC0@52.593C CV1@50.593C GPU@50.656C tj@55.531C SOC1@55.531C
 
 ** Application Specific Monitoring
 *** F2_App
@@ -157,16 +114,7 @@ f2_
 
    #+RESULTS:
    #+begin_example
-   2025-04-04 15:48:40,916  - __main__ - main.py- pub_doorsensors_state - DEBUG - J2 AC Door Sensors: False True
-   2025-04-04 15:48:40,959  - __main__ - main.py- task_pub - INFO - Published topic: <stat/f2-48b02de9c57d/access-control-mode/J2/door-sensors> payload: {"timestamp": "2025-04-04 18:48:40.917246", "door-sensor-1": false, "door-sensor-2": true}
-   2025-04-04 15:48:46,065  - __main__ - main.py- pub_doorsensors_state - DEBUG - J2 AC Door Sensors: True True
-   2025-04-04 15:48:46,156  - __main__ - main.py- task_pub - INFO - Published topic: <stat/f2-48b02de9c57d/access-control-mode/J2/door-sensors> payload: {"timestamp": "2025-04-04 18:48:46.066095", "door-sensor-1": true, "door-sensor-2": true}
-   2025-04-04 15:49:18,028  - __main__ - main.py- pub_doorsensors_state - DEBUG - J2 AC Door Sensors: True False
-   2025-04-04 15:49:18,067  - __main__ - main.py- task_pub - INFO - Published topic: <stat/f2-48b02de9c57d/access-control-mode/J2/door-sensors> payload: {"timestamp": "2025-04-04 18:49:18.029065", "door-sensor-1": true, "door-sensor-2": false}
-   2025-04-04 15:49:22,069  - __main__ - main.py- pub_doorsensors_state - DEBUG - J2 AC Door Sensors: True True
-   2025-04-04 15:49:22,136  - __main__ - main.py- task_pub - INFO - Published topic: <stat/f2-48b02de9c57d/access-control-mode/J2/door-sensors> payload: {"timestamp": "2025-04-04 18:49:22.070262", "door-sensor-1": true, "door-sensor-2": true}
-   2025-04-04 15:49:26,572  - __main__ - main.py- pub_doorsensors_state - DEBUG - J2 AC Door Sensors: False True
-   2025-04-04 15:49:26,620  - __main__ - main.py- task_pub - INFO - Published topic: <stat/f2-48b02de9c57d/access-control-mode/J2/door-sensors> payload: {"timestamp": "2025-04-04 18:49:26.572955", "door-sensor-1": false, "door-sensor-2": true}
+
    #+end_example
 
  - [ ] Application Resource Usage (<F2_App>):
@@ -175,18 +123,15 @@ f2_
    #+END_SRC
 
    #+RESULTS:
-   : root         496  0.0  0.0   2060   464 ?        Ss   15:12   0:00 /bin/sh -c sleep 150; /bin/python3 /home/nvidia/projects/F2-App/main.py
-   : root        1903  8.5  0.3 104996 23592 ?        Sl   15:14   2:59 /bin/python3 /home/nvidia/projects/F2-App/main.py
-   : nvidia      2730  0.0  0.0   8576   640 ?        S    15:49   0:00 grep F2-App
 
 *** F2_App_fanstel_ble
  - [ ] Application Process Status (<F2_App_fanstel_ble>):
    #+BEGIN_SRC bash
      pids=$(pgrep -f "F2_App_fanstel_ble" | grep -v "sh -c")
      if [ -z "$pids" ]; then
-           echo "F2-App process is not running."
+           echo "F2_App_fanstel_ble process is not running."
      else
-           echo "F2-App is running with PID(s): $pids"
+           echo "F2_App_fanstel_ble is running with PID(s): $pids"
      fi
    #+END_SRC
 
@@ -205,10 +150,6 @@ f2_
    #+END_SRC
 
    #+RESULTS:
-   : root         495  0.0  0.0   2060   524 ?        Ss   15:12   0:00 /bin/sh -c sleep 125; /home/nvidia/projects/F2_App_fanstel_ble/.venv/bin/python3 /home/nvidia/projects/F2_App_fanstel_ble/main.py
-   : root        1878  0.7  0.3 110228 26372 ?        Sl   15:14   0:15 /home/nvidia/projects/F2_App_fanstel_ble/.venv/bin/python3 /home/nvidia/projects/F2_App_fanstel_ble/main.py
-   : nvidia      2737  0.0  0.0   8580   640 ?        S    15:49   0:00 grep F2_App_fanstel_ble
-
 
 ** System Health and Configuration
  - [X] System Uptime:
@@ -217,7 +158,6 @@ f2_
    #+END_SRC
 
    #+RESULTS:
-   :  15:49:38 up 37 min,  1 user,  load average: 0.29, 0.19, 0.13
 
  - [X] System Logs (Errors):
    #+BEGIN_SRC bash
@@ -226,17 +166,5 @@ f2_
 
    #+RESULTS:
    #+begin_example
-   -- Logs begin at Mon 2024-06-17 17:29:39 ADT, end at Fri 2025-04-04 15:49:32 ADT. --
-   Jun 17 17:29:39 ubuntu kernel: tegra_dc_assign_hw_data: no matching compatible node
-   Jun 17 17:29:39 ubuntu kernel: tegradccommon module_init failed
-   Jun 17 17:29:39 ubuntu kernel: tegradc module_init failed
-   Jun 17 17:29:41 ubuntu kernel: imx219 9-0010: imx219_board_setup: error during i2c read probe (-121)
-   Jun 17 17:29:41 ubuntu kernel: fusb301 1-0025: failed to read device id, err : 0xffffff87
-   Jun 17 17:29:41 ubuntu kernel: imx219 9-0010: board setup failed
-   Jun 17 17:29:41 ubuntu kernel: fusb301 1-0025: fusb301 not support
-   Jun 17 17:29:41 ubuntu kernel: imx219 10-0010: imx219_board_setup: error during i2c read probe (-121)
-   Jun 17 17:29:41 ubuntu kernel: imx219 10-0010: board setup failed
-   Apr 04 15:11:30 ubuntu phs[1118]: E/ nvphs: Failed to initialize sysfs readers. Exiting.
-   Apr 04 15:11:30 ubuntu phs[1118]: E/ nvphs: Initialization Failed! Entering Zombie mode
-   Apr 04 15:17:05 ubuntu systemd[1]: Failed to start LSB: Sets up qmi_wwan module.
+
    #+end_example

@@ -1,5 +1,6 @@
 #+TITLE: Monthly Jetson Orin Health Check
-#+DATE: <2025-04-03 Thu>
+#+AUTHOR: Fab
+#+DATE: <2025-04-07 Mon>
 
 #+PROPERTY: header-args:bash :results output replace
 #+PROPERTY: header-args:sh :results output replace
@@ -9,7 +10,7 @@
 #+BEGIN_SRC bash
   get_formatted_mac() {
     # Extract MAC address from 'ifconfig' command's output
-    local mac_address=$(ifconfig eth0 | grep 'ether' | awk '{print $2}')
+    local mac_address=$(ifconfig eth2 | grep 'ether' | awk '{print $2}')
 
     # Replace ':' with nothing to get the required format
     local formatted_mac_address=$(echo "$mac_address" | tr -d ':')
@@ -88,7 +89,7 @@
 
 - [ ] Thermal Monitoring:
   #+BEGIN_SRC bash
-    tegrastats | head  -1 | awk '{print $17,$18,$19.$20,$21,$22,$23,$24,$25}'
+    tegrastats | head  -1 | awk '{print $1,$2,$17,$18,$19.$20,$21,$22,$23,$24,$25}'
   #+END_SRC
 
   #+RESULTS:

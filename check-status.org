@@ -2,8 +2,8 @@
 #+AUTHOR: Fab
 #+DATE: <2025-04-07 Mon>
 
-#+PROPERTY: header-args:bash :results output replace
-#+PROPERTY: header-args:sh :results output replace
+#+PROPERTY: header-args:bash :results output replace :exports both
+#+PROPERTY: header-args:sh :results output replace :exports both
 
 * Device:
 #+NAME: get-f2-id

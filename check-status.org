@@ -31,22 +31,22 @@
 
 
 
-** System Resource Monitoring [0/5]
-- [ ] CPU Usage:
+** System Resource Monitoring
+- CPU Usage:
    #+BEGIN_SRC bash
      top -bn1 | grep '^%Cpu' | awk '{print $2}'
    #+END_SRC
 
    #+RESULTS:
 
-- [ ] Memory Usage:
+- Memory Usage:
    #+BEGIN_SRC sh
      free -h
    #+END_SRC
 
    #+RESULTS:
 
-- [ ] Disk Usage:
+- Disk Usage:
    #+BEGIN_SRC sh
      df -h
    #+END_SRC
@@ -56,14 +56,14 @@
 
    #+end_example
 
-- [ ] Disk I/O:
+- Disk I/O:
    #+BEGIN_SRC bash
      iostat -d -k 1 1
    #+END_SRC
 
    #+RESULTS:
 
-- [ ] Network Interface Status:
+- Network Interface Status:
    #+BEGIN_SRC bash
      ip a
    #+END_SRC
@@ -79,15 +79,15 @@
 
    #+RESULTS:
 
-** Jetson Specific Monitoring [0/2]
-- [ ] GPU Usage:
+** Jetson Specific Monitoring
+- GPU Usage:
   #+BEGIN_SRC bash
     tegrastats | head -1
   #+END_SRC
 
   #+RESULTS:
 
-- [ ] Thermal Monitoring:
+- Thermal Monitoring:
   #+BEGIN_SRC bash
     tegrastats | head  -1 | awk '{print $1,$2,$17,$18,$19.$20,$21,$22,$23,$24,$25}'
   #+END_SRC
@@ -96,7 +96,7 @@
 
 ** Application Specific Monitoring
 *** F2_App
- - [ ] Application Process Status (<F2_App>):
+ - Application Process Status (<F2_App>):
    #+BEGIN_SRC bash
      pids=$(pgrep -f "F2-App" | grep -v "sh -c")
      if [ -z "$pids" ]; then
@@ -108,7 +108,7 @@
 
    #+RESULTS:
 
- - [ ] Application Logs (<F2_App>):
+ - Application Logs (<F2_App>):
    #+BEGIN_SRC bash
      tail -n 10 /home/nvidia/projects/F2-App/logs/app.log
    #+END_SRC
@@ -118,7 +118,7 @@
 
    #+end_example
 
- - [ ] Application Resource Usage (<F2_App>):
+ - Application Resource Usage (<F2_App>):
    #+BEGIN_SRC bash
      ps -aux | grep F2-App
    #+END_SRC
@@ -126,7 +126,7 @@
    #+RESULTS:
 
 *** F2_App_fanstel_ble
- - [ ] Application Process Status (<F2_App_fanstel_ble>):
+ - Application Process Status (<F2_App_fanstel_ble>):
    #+BEGIN_SRC bash
      pids=$(pgrep -f "F2_App_fanstel_ble" | grep -v "sh -c")
      if [ -z "$pids" ]; then
@@ -138,29 +138,56 @@
 
    #+RESULTS:
 
- - [ ] Application Logs (<F2_App_fanstel_ble>):
+ - Application Logs (<F2_App_fanstel_ble>):
    #+BEGIN_SRC bash
      tail -n 20 /home/nvidia/projects/F2_App_fanstel_ble/logs/ble-app.log
    #+END_SRC
 
    #+RESULTS:
 
- - [ ] Application Resource Usage (<F2_App_fanstel_ble>):
+ - Application Resource Usage (<F2_App_fanstel_ble>):
    #+BEGIN_SRC bash
      ps -aux | grep F2_App_fanstel_ble
    #+END_SRC
 
    #+RESULTS:
 
+*** F2_Crowd_Scanning
+ - Application Process Status (<F2_Crowd_Scanning>):
+   #+BEGIN_SRC bash
+     pids=$(pgrep -f "F2_Crowd_Scanning" | grep -v "sh -c")
+     if [ -z "$pids" ]; then
+           echo "F2_Crowd_Scanning process is not running."
+     else
+           echo "F2_Crowd_Scanning is running with PID(s): $pids"
+     fi
+   #+END_SRC
+
+   #+RESULTS:
+
+ - Application Logs (<F2_Crowd_Scanning>):
+   #+BEGIN_SRC bash
+     tail -n 20 /home/nvidia/projects/F2_Crowd_Scanning/logs/app.log
+   #+END_SRC
+
+   #+RESULTS:
+
+ - Application Resource Usage (<F2_Crowd_Scanning>):
+   #+BEGIN_SRC bash
+     ps -aux | grep F2_Crowd_Scanning
+   #+END_SRC
+
+   #+RESULTS:
+
 ** System Health and Configuration
- - [ ] System Uptime:
+ - System Uptime:
    #+BEGIN_SRC bash
      uptime
    #+END_SRC
 
    #+RESULTS:
 
- - [ ] System Logs (Errors):
+ - System Logs (Errors):
    #+BEGIN_SRC bash
      journalctl -p err | tail -25
    #+END_SRC

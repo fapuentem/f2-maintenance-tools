@@ -73,7 +73,7 @@ provides a detailed report the health of the device.
           (when (re-search-forward "^#\\+SUBTITLE:.*" nil t)
             (replace-match (concat "#+SUBTITLE: " (format "f2-%s" mac))))
           (when (re-search-forward "^#\\+DATE:.*" nil t)
-            (replace-match (concat "#+DATE: " (org-insert-time-stamp (current-time) t))
+            (replace-match (concat "#+DATE: " (org-insert-time-stamp (current-time) t))))
           (when (re-search-forward "^#\\+EXPORT_FILE_NAME:.*" nil t)
             (replace-match (format "#+EXPORT_FILE_NAME: f2-%s-report" mac)))))
 #+END_SRC
@@ -84,6 +84,9 @@ provides a detailed report the health of the device.
 #+begin_src elisp :results none
   (load-theme 'modus-vivendi)
   (setf fill-column 100)
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((shell . t)))
 #+end_src
 
 * System Resource Monitoring

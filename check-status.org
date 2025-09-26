@@ -16,17 +16,8 @@ automatically it get the MAC address and update its content.
 This document will differ slightly depending in which F2 you run it. The exported version in HTML
 provides a detailed report the health of the device.
 
-If you wish to export the RedHat/Fedora specific version of the document, you will first need to:
-
-- change the "#+SUBTITLE:" line at the top of the document to read "Debian Edition".
-- change the "#+EXCLUDE_TAGS:" line at the top of the document to "noexport redhat".
-- change the "#+EXPORT_FILE_NAME:" line at the top of the document to "deb_buildemacs".
-- change the":prefix:" property in section "Document constants" section to "deb_".
-
-Alternatively, you can just hit =C-c C-c= on the block below to have Emacs to this for you!
-
 #+NAME: update_mac_address
-#+BEGIN_SRC elisp :results none :eval never-export :var os="Debian"
+#+BEGIN_SRC elisp :results none :eval never-export :var board-ver="v3.1"
   (defun net-mac-no-colon (iface)
     "Return IFACE's MAC address as 12 lowercase hex chars (no colons).
   On Linux, reads /sys/class/net/IFACE/address. Falls back to `ip` or `ifconfig`."
@@ -65,7 +56,18 @@ Alternatively, you can just hit =C-c C-c= on the block below to have Emacs to th
         (message "%s" hex))
       hex))
 
-    (let* ((mac (net-mac-no-colon "eth1")))
+  (defun f2-board->iface (board-ver)
+  "Map BOARD-VER (string) to the network interface name."
+  (or (alist-get board-ver
+                 '(("v3.1" . "eth1")
+                   ("v3.0" . "eth2")
+                   ("v2.1" . "eth2")
+                   ("v2.0" . "eth0"))
+                 nil nil #'string=)
+      (user-error "Unknown board version: %s" board-ver)))
+
+   (let* ((iface (f2-board->iface board-ver))
+          (mac (net-mac-no-colon iface)))
         (save-excursion
           (goto-char (point-min))
           (when (re-search-forward "^#\\+SUBTITLE:.*" nil t)

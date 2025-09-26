@@ -1,4 +1,4 @@
-#+TITLE: Monthly Jetson Orin Health Check
+#+TITLE: F2 Smart Controller Health Report
 #+SUBTITLE: F2-<MAC_ADDRESS>
 #+AUTHOR: Fabricio Puente M.
 #+EMAIL: fpuentem@visiontechconsulting.ca
@@ -57,8 +57,8 @@ provides a detailed report the health of the device.
       hex))
 
   (defun f2-board->iface (board-ver)
-  "Map BOARD-VER (string) to the network interface name."
-  (or (alist-get board-ver
+    "Map BOARD-VER (string) to the network interface name."
+    (or (alist-get board-ver
                  '(("v3.1" . "eth1")
                    ("v3.0" . "eth2")
                    ("v2.1" . "eth2")
@@ -72,12 +72,21 @@ provides a detailed report the health of the device.
           (goto-char (point-min))
           (when (re-search-forward "^#\\+SUBTITLE:.*" nil t)
             (replace-match (concat "#+SUBTITLE: " (format "f2-%s" mac))))
+          (when (re-search-forward "^#\\+DATE:.*" nil t)
+            (replace-match (concat "#+DATE: " (org-insert-time-stamp (current-time) t))
           (when (re-search-forward "^#\\+EXPORT_FILE_NAME:.*" nil t)
             (replace-match (format "#+EXPORT_FILE_NAME: f2-%s-report" mac)))))
 #+END_SRC
 
+* Code :noexport:
 
-** System Resource Monitoring
+#+NAME: startup
+#+begin_src elisp :results none
+  (load-theme 'modus-vivendi)
+  (setf fill-column 100)
+#+end_src
+
+* System Resource Monitoring
 
 - CPU Usage:
 
@@ -128,8 +137,9 @@ provides a detailed report the health of the device.
 
    #+RESULTS:
 
-** Jetson Specific Monitoring
+* Jetson Specific Monitoring
 - GPU Usage:
+
   #+BEGIN_SRC sh
     tegrastats | head -1
   #+END_SRC
@@ -137,6 +147,7 @@ provides a detailed report the health of the device.
   #+RESULTS:
 
 - Thermal Monitoring:
+
   #+BEGIN_SRC sh
     tegrastats | head  -1 | awk '{print $1,$2,$17,$18,$19.$20,$21,$22,$23,$24,$25}'
   #+END_SRC
@@ -145,19 +156,22 @@ provides a detailed report the health of the device.
 
 ** Application Specific Monitoring
 *** F2 App
- - Application Process Status (<F2 App>):
-   #+BEGIN_SRC sh
-     pids=$(pgrep -f "F2-App" | grep -v "sh -c")
-     if [ -z "$pids" ]; then
-           echo "F2-App process is not running."
-     else
-           echo "F2-App is running with PID(s): $pids"
-     fi
-   #+END_SRC
+
+- Application Process Status (<F2 App>):
+
+  #+BEGIN_SRC sh
+    pids=$(pgrep -f "F2-App" | grep -v "sh -c")
+    if [ -z "$pids" ]; then
+          echo "F2-App process is not running."
+    else
+          echo "F2-App is running with PID(s): $pids"
+    fi
+  #+END_SRC
 
    #+RESULTS:
 
  - Application Logs (<F2 App>):
+
    #+BEGIN_SRC sh
      tail -n 10 /home/nvidia/projects/F2-App/logs/app.log
    #+END_SRC
@@ -168,26 +182,30 @@ provides a detailed report the health of the device.
    #+end_example
 
  - Application Resource Usage (<F2 App>):
-   #+BEGIN_SRC sh
+
+    #+BEGIN_SRC sh
      ps -aux | grep F2-App
    #+END_SRC
 
    #+RESULTS:
 
 *** F2 App fanstel ble
- - Application Process Status (<F2 App fanstel ble>):
-   #+BEGIN_SRC sh
-     pids=$(pgrep -f "F2_App_fanstel_ble" | grep -v "sh -c")
-     if [ -z "$pids" ]; then
-           echo "F2_App_fanstel_ble process is not running."
-     else
-           echo "F2_App_fanstel_ble is running with PID(s): $pids"
-     fi
-   #+END_SRC
+
+- Application Process Status (<F2 App fanstel ble>):
+
+  #+BEGIN_SRC sh
+    pids=$(pgrep -f "F2_App_fanstel_ble" | grep -v "sh -c")
+    if [ -z "$pids" ]; then
+          echo "F2_App_fanstel_ble process is not running."
+    else
+          echo "F2_App_fanstel_ble is running with PID(s): $pids"
+    fi
+  #+END_SRC
 
    #+RESULTS:
 
  - Application Logs (<F2 App fanstelble>):
+
    #+BEGIN_SRC sh
      tail -n 20 /home/nvidia/projects/F2_App_fanstel_ble/logs/ble-app.log
    #+END_SRC
@@ -195,6 +213,7 @@ provides a detailed report the health of the device.
    #+RESULTS:
 
  - Application Resource Usage (<F2 App fanstel ble>):
+
    #+BEGIN_SRC sh
      ps -aux | grep F2_App_fanstel_ble
    #+END_SRC
@@ -202,19 +221,22 @@ provides a detailed report the health of the device.
    #+RESULTS:
 
 *** F2 Crowd Scanning
+
  - Application Process Status (<F2 Crowd Scanning>):
+
    #+BEGIN_SRC sh
      pids=$(pgrep -f "F2_Crowd_Scanning" | grep -v "sh -c")
      if [ -z "$pids" ]; then
            echo "F2_Crowd_Scanning process is not running."
      else
-           echo "F2_Crowd_Scanning is running with PID(s): $pids"
+         echo "F2_Crowd_Scanning is running with PID(s): $pids"
      fi
    #+END_SRC
 
    #+RESULTS:
 
  - Application Logs (<F2 Crowd Scanning>):
+
    #+BEGIN_SRC sh
      tail -n 20 /home/nvidia/projects/F2_Crowd_Scanning/logs/app.log
    #+END_SRC
@@ -222,6 +244,7 @@ provides a detailed report the health of the device.
    #+RESULTS:
 
  - Application Resource Usage (<F2 Crowd Scanning>):
+
    #+BEGIN_SRC sh
      ps -aux | grep F2_Crowd_Scanning
    #+END_SRC
@@ -229,7 +252,9 @@ provides a detailed report the health of the device.
    #+RESULTS:
 
 ** System Health and Configuration
- - System Uptime:
+
+- System Uptime:
+
    #+BEGIN_SRC sh
      uptime
    #+END_SRC
@@ -237,6 +262,7 @@ provides a detailed report the health of the device.
    #+RESULTS:
 
  - System Logs (Errors):
+
    #+BEGIN_SRC sh
      journalctl -p err | tail -25
    #+END_SRC
@@ -245,3 +271,11 @@ provides a detailed report the health of the device.
    #+begin_example
 
    #+end_example
+
+# Local Variables:
+# org-confirm-babel-evaluate: (lambda (lang body) (not (string= lang "elisp")))
+# eval: (progn
+#         (when (fboundp 'org-babel-goto-named-src-block)
+#           (org-babel-goto-named-src-block "startup")
+#           (org-babel-execute-src-block)))
+# End:

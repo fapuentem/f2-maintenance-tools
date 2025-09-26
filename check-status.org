@@ -1,54 +1,102 @@
 #+TITLE: Monthly Jetson Orin Health Check
-#+AUTHOR: Fab
+#+SUBTITLE: F2-<MAC_ADDRESS>
+#+AUTHOR: Fabricio Puente M.
+#+EMAIL: fpuentem@visiontechconsulting.ca
 #+DATE: <2025-04-07 Mon>
-
+#+EXCLUDE_TAGS: noexport
+#+OPTIONS: email:t tags:nil toc:nil
+#+EXPORT_FILE_NAME: check-status
 #+PROPERTY: header-args:sh :results output replace :exports both
 
-* Device:
-#+NAME: get-f2-id
-#+BEGIN_SRC sh
-  get_formatted_mac() {
-    # Extract MAC address from 'ifconfig' command's output
-    local mac_address=$(ifconfig eth2 | grep 'ether' | awk '{print $2}')
+* README :noexport:
 
-    # Replace ':' with nothing to get the required format
-    local formatted_mac_address=$(echo "$mac_address" | tr -d ':')
+This is a literate document that can create a health status of the F2 Smart Controller SoM,
+automatically it get the MAC address and update its content.
 
-    # Add 'f2_' prefix to the MAC address
-    local result="f2_$formatted_mac_address"
+This document will differ slightly depending in which F2 you run it. The exported version in HTML
+provides a detailed report the health of the device.
 
-    # Print the result (useful for capturing return value)
-    echo "$result"
-   }
-  # Get F2 id
-  # get_formatted_mac
-  f2_formatted_mac=$(get_formatted_mac)
-  echo "$f2_formatted_mac"
+If you wish to export the RedHat/Fedora specific version of the document, you will first need to:
+
+- change the "#+SUBTITLE:" line at the top of the document to read "Debian Edition".
+- change the "#+EXCLUDE_TAGS:" line at the top of the document to "noexport redhat".
+- change the "#+EXPORT_FILE_NAME:" line at the top of the document to "deb_buildemacs".
+- change the":prefix:" property in section "Document constants" section to "deb_".
+
+Alternatively, you can just hit =C-c C-c= on the block below to have Emacs to this for you!
+
+#+NAME: update_mac_address
+#+BEGIN_SRC elisp :results none :eval never-export :var os="Debian"
+  (defun net-mac-no-colon (iface)
+    "Return IFACE's MAC address as 12 lowercase hex chars (no colons).
+  On Linux, reads /sys/class/net/IFACE/address. Falls back to `ip` or `ifconfig`."
+    (interactive
+     (list (completing-read "Interface: " (mapcar #'symbol-name (network-interface-list)))))
+    (let* ((sys-path (format "/sys/class/net/%s/address" iface))
+           (raw
+            (cond
+             ;; Linux: /sys
+             ((file-readable-p sys-path)
+              (string-trim (with-temp-buffer
+                             (insert-file-contents sys-path)
+                             (buffer-string))))
+             ;; ip(8)
+             ((executable-find "ip")
+              (with-temp-buffer
+                (call-process "ip" nil t nil "link" "show" "dev" iface)
+                (goto-char (point-min))
+                (when (re-search-forward
+                       ;; matches: "link/ether aa:bb:cc:dd:ee:ff"
+                       "\\blink/ether\\s-+\\([0-9A-Fa-f:]+\\)" nil t)
+                  (match-string 1))))
+             ;; ifconfig
+             ((executable-find "ifconfig")
+              (with-temp-buffer
+                (call-process "ifconfig" nil t nil iface)
+                (goto-char (point-min))
+                (when (re-search-forward
+                       ;; matches: "ether aa:bb:cc:dd:ee:ff"
+                       "\\beth(?:her)?\\s-+\\([0-9A-Fa-f:]+\\)" nil t)
+                  (match-string 1))))))
+           (hex (and raw (replace-regexp-in-string ":" "" (downcase raw)))))
+      (unless (and hex (= (length hex) 12) (string-match-p "\\`[0-9a-f]\\{12\\}\\'" hex))
+        (user-error "Could not obtain a valid MAC for %s" iface))
+      (when (called-interactively-p 'interactive)
+        (message "%s" hex))
+      hex))
+
+    (let* ((mac (net-mac-no-colon "eth1")))
+        (save-excursion
+          (goto-char (point-min))
+          (when (re-search-forward "^#\\+SUBTITLE:.*" nil t)
+            (replace-match (concat "#+SUBTITLE: " (format "f2-%s" mac))))
+          (when (re-search-forward "^#\\+EXPORT_FILE_NAME:.*" nil t)
+            (replace-match (format "#+EXPORT_FILE_NAME: f2-%s-report" mac)))))
 #+END_SRC
-
-#+RESULTS: get-f2-id
-
 
 
 ** System Resource Monitoring
+
 - CPU Usage:
-   #+BEGIN_SRC sh
-     top -bn1 | grep '^%Cpu' | awk '{print $2}'
-   #+END_SRC
+
+  #+BEGIN_SRC sh
+    top -bn1 | grep '^%Cpu' | awk '{print $2}'
+  #+END_SRC
 
    #+RESULTS:
 
 - Memory Usage:
-   #+BEGIN_SRC sh
-     free -h
-   #+END_SRC
+
+  #+BEGIN_SRC sh
+    free -h
+  #+END_SRC
 
    #+RESULTS:
 
 - Disk Usage:
-   #+BEGIN_SRC sh
-     df -h
-   #+END_SRC
+  #+BEGIN_SRC sh
+    df -h
+  #+END_SRC
 
    #+RESULTS:
    #+begin_example

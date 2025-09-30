@@ -79,6 +79,52 @@ provides a detailed report the health of the device.
             (replace-match (format "#+EXPORT_FILE_NAME: f2-%s-report" mac)))))
 #+END_SRC
 
+#+NAME: update_sn
+#+BEGIN_SRC elisp
+  (defun vt-sysfs-serial-number (&optional path)
+    "Read serial number string from PATH (default Jetson path).
+  Strips trailing NULs and whitespace."
+    (let* ((p (or path "/sys/firmware/devicetree/base/serial-number"))
+           (s (when (file-readable-p p)
+                (with-temp-buffer
+                  (insert-file-contents p)
+                  (buffer-string)))))
+      (unless s
+        (error "Cannot read serial from %s" p))
+      (string-trim (replace-regexp-in-string "\0+$" "" s))))
+
+  (cl-defun vt-i2c-read-serial (&key (bus 1) (addr #x58) (reg #x80) (len 16) sudo)
+    "Return hex string (no spaces, no 0x) read via i2ctransfer.
+  BUS is the I²C bus number, ADDR the 7-bit address, REG the starting
+  register, and LEN the number of bytes to read. If SUDO is non-nil,
+  run the command under TRAMP /sudo::.
+
+  Requires `i2ctransfer` from i2c-tools."
+    (let* ((args (list "-f" "-y" (number-to-string bus)
+                       (format "w1@0x%02x" addr)
+                       (format "0x%02x" reg)
+                       (format "r%d" len)))
+           (default-directory (if sudo "/sudo::" default-directory)))
+      (unless (executable-find "i2ctransfer")
+        (error "i2ctransfer not found; install i2c-tools"))
+      (with-temp-buffer
+        (let ((status (apply #'process-file "i2ctransfer" nil t nil args)))
+          (unless (and (integerp status) (= status 0))
+            (error "i2ctransfer exit %s; output: %s" status (buffer-string)))
+          ;; Example output: "0x01 0xAB 0xCD ..."
+          (let* ((out   (buffer-string))
+                 (clean (replace-regexp-in-string "\\(?:0x\\)\\|[^0-9A-Fa-f]" "" out)))
+            (unless (string-match-p "\\`[0-9A-Fa-f]+\\'" clean)
+              (error "Unexpected i2ctransfer output: %s" out))
+            (downcase clean))))))
+
+  (let ((som-sn (vt-sysfs-serial-number))
+        (f2-sn (vt-i2c-read-serial)))
+        (save-excursion
+          (goto-char (point-min))
+          (when (re-search-forward "^SN F2 carrier board:.*" nil t)
+            (replace-match (concat "SN F2 carrier board: " (format "f2-%s" f2-sn))))))
+#+END_SRC
 * Code :noexport:
 
 #+NAME: startup
@@ -100,9 +146,9 @@ provides a detailed report the health of the device.
   i2ctransfer -f -y 1 w1@0x58 0x80 r16 | sed 's/0x//g'
 #+END_SRC
 
-* S/N F2 carrier board: {{{sn_f2}}}
+* SN F2 carrier board: {{{sn_f2}}}
 
-* S/N Jetson SoM: {{{sn_som}}}
+* SN Jetson SoM: {{{sn_som}}}
 
 * System Resource Monitoring
 

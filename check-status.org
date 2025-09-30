@@ -7,7 +7,8 @@
 #+OPTIONS: email:t tags:nil toc:nil
 #+EXPORT_FILE_NAME: check-status
 #+PROPERTY: header-args:sh :results output replace :exports both
-
+#+MACRO: sn_som call_sn_som[:results raw]
+#+MACRO: sn_f2 call_sn_f2[:results raw]
 * README :noexport:
 
 This is a literate document that can create a health status of the F2 Smart Controller SoM,
@@ -88,6 +89,20 @@ provides a detailed report the health of the device.
    'org-babel-load-languages
    '((shell . t)))
 #+end_src
+
+#+NAME: sn_jetson
+#+BEGIN_SRC sh
+  cat /sys/firmware/devicetree/base/serial-number
+#+END_SRC
+
+#+NAME: sn_f2
+#+BEGIN_SRC sh :dir /sudo::
+  i2ctransfer -f -y 1 w1@0x58 0x80 r16 | sed 's/0x//g'
+#+END_SRC
+
+* S/N F2 carrier board: {{{sn_f2}}}
+
+* S/N Jetson SoM: {{{sn_som}}}
 
 * System Resource Monitoring
 

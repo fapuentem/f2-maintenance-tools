@@ -79,7 +79,7 @@ provides a detailed report the health of the device.
             (replace-match (format "#+EXPORT_FILE_NAME: f2-%s-report" mac)))))
 #+END_SRC
 
-#+NAME: update_sn
+#+NAME: sn_som
 #+BEGIN_SRC elisp
   (defun vt-sysfs-serial-number (&optional path)
     "Read serial number string from PATH (default Jetson path).
@@ -92,7 +92,10 @@ provides a detailed report the health of the device.
       (unless s
         (error "Cannot read serial from %s" p))
       (string-trim (replace-regexp-in-string "\0+$" "" s))))
+#+END_SRC
 
+#+NAME: sn_f2
+#+BEGIN_SRC elisp
   (cl-defun vt-i2c-read-serial (&key (bus 1) (addr #x58) (reg #x80) (len 16) sudo)
     "Return hex string (no spaces, no 0x) read via i2ctransfer.
   BUS is the I²C bus number, ADDR the 7-bit address, REG the starting
@@ -117,14 +120,19 @@ provides a detailed report the health of the device.
             (unless (string-match-p "\\`[0-9A-Fa-f]+\\'" clean)
               (error "Unexpected i2ctransfer output: %s" out))
             (downcase clean))))))
-
-  (let ((som-sn (vt-sysfs-serial-number))
-        (f2-sn (vt-i2c-read-serial)))
-        (save-excursion
-          (goto-char (point-min))
-          (when (re-search-forward "^SN F2 carrier board:.*" nil t)
-            (replace-match (concat "SN F2 carrier board: " (format "f2-%s" f2-sn))))))
 #+END_SRC
+
+#+BEGIN_SRC elisp :dir /sudo::
+    (let ((som-sn (vt-sysfs-serial-number))
+          (f2-sn (vt-i2c-read-serial)))
+          (save-excursion
+            (goto-char (point-min))
+            (when (re-search-forward "^* S/N F2 carrier board:.*" nil t)
+              (replace-match (concat "SN F2 carrier board: " (format "f2-%s" f2-sn))))
+            (when (re-search-forward "^* S/N Jetson SoM:.*" nil t)
+            (replace-match (concat "S/N Jetson SoM: " (format "f2-%s" som-sn))))))
+#+END_SRC
+
 * Code :noexport:
 
 #+NAME: startup
@@ -136,19 +144,9 @@ provides a detailed report the health of the device.
    '((shell . t)))
 #+end_src
 
-#+NAME: sn_jetson
-#+BEGIN_SRC sh
-  cat /sys/firmware/devicetree/base/serial-number
-#+END_SRC
+* S/N F2 carrier board:
 
-#+NAME: sn_f2
-#+BEGIN_SRC sh :dir /sudo::
-  i2ctransfer -f -y 1 w1@0x58 0x80 r16 | sed 's/0x//g'
-#+END_SRC
-
-* SN F2 carrier board: {{{sn_f2}}}
-
-* SN Jetson SoM: {{{sn_som}}}
+* S/N Jetson SoM:
 
 * System Resource Monitoring
 

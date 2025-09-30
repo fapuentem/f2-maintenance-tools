@@ -7,8 +7,7 @@
 #+OPTIONS: email:t tags:nil toc:nil
 #+EXPORT_FILE_NAME: check-status
 #+PROPERTY: header-args:sh :results output replace :exports both
-#+MACRO: sn_som call_sn_som[:results raw]
-#+MACRO: sn_f2 call_sn_f2[:results raw]
+
 * README :noexport:
 
 This is a literate document that can create a health status of the F2 Smart Controller SoM,
@@ -80,7 +79,7 @@ provides a detailed report the health of the device.
 #+END_SRC
 
 #+NAME: sn_som
-#+BEGIN_SRC elisp
+#+BEGIN_SRC elisp :results none
   (defun vt-sysfs-serial-number (&optional path)
     "Read serial number string from PATH (default Jetson path).
   Strips trailing NULs and whitespace."
@@ -95,7 +94,7 @@ provides a detailed report the health of the device.
 #+END_SRC
 
 #+NAME: sn_f2
-#+BEGIN_SRC elisp
+#+BEGIN_SRC elisp :results none
   (cl-defun vt-i2c-read-serial (&key (bus 1) (addr #x58) (reg #x80) (len 16) sudo)
     "Return hex string (no spaces, no 0x) read via i2ctransfer.
   BUS is the I²C bus number, ADDR the 7-bit address, REG the starting
@@ -122,15 +121,15 @@ provides a detailed report the health of the device.
             (downcase clean))))))
 #+END_SRC
 
-#+BEGIN_SRC elisp :dir /sudo::
-    (let ((som-sn (vt-sysfs-serial-number))
-          (f2-sn (vt-i2c-read-serial)))
-          (save-excursion
-            (goto-char (point-min))
-            (when (re-search-forward "^* S/N F2 carrier board:.*" nil t)
-              (replace-match (concat "SN F2 carrier board: " (format "f2-%s" f2-sn))))
-            (when (re-search-forward "^* S/N Jetson SoM:.*" nil t)
-            (replace-match (concat "S/N Jetson SoM: " (format "f2-%s" som-sn))))))
+#+BEGIN_SRC elisp :results none :dir /sudo::
+  (let ((som-sn (vt-sysfs-serial-number))
+        (f2-sn (vt-i2c-read-serial)))
+    (save-excursion
+      (goto-char (point-min))
+      (when (re-search-forward "^* S/N F2 carrier board:.*" nil t)
+        (replace-match (concat "* S/N F2 carrier board: " (format "%s" f2-sn))))
+      (when (re-search-forward "^* S/N Jetson SoM:.*" nil t)
+        (replace-match (concat "* S/N Jetson SoM: " (format "%s" som-sn))))))
 #+END_SRC
 
 * Code :noexport:

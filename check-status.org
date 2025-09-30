@@ -8,13 +8,29 @@
 #+EXPORT_FILE_NAME: check-status
 #+PROPERTY: header-args:sh :results output replace :exports both
 
-* README :noexport:
+* README                                                                        :noexport:
 
-This is a literate document that can create a health status of the F2 Smart Controller SoM,
-automatically it get the MAC address and update its content.
+This document is written in a *literate programming* style and is designed to
+generate a health report for an F2 Smart Controller (Jetson Orin NX).
 
-This document will differ slightly depending in which F2 you run it. The exported version in HTML
-provides a detailed report the health of the device.
+When executed, the document automatically:
+
+- Detects the board version.
+- Retrieves the device’s MAC address and serial numbers.
+- Updates the document header fields (`#+SUBTITLE:`, `#+DATE:`,
+  `#+EXPORT_FILE_NAME:`) with device-specific values.
+
+The final exported report (e.g. HTML) provides a comprehensive health overview
+of the controller, including:
+
+- System resource usage (CPU, memory, disk, network).
+- Jetson-specific monitoring (GPU, thermals).
+- Application-level status and logs (F2-App, BLE service, Crowd Scanning).
+- General system health and configuration.
+
+Because the document queries the actual device, each export will reflect the
+current state of the F2 on which it is run. This makes it useful both for
+routine monitoring and for generating formal diagnostic reports.
 
 #+NAME: update_mac_address
 #+BEGIN_SRC elisp :results none :eval never-export :var board-ver="v3.1"

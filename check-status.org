@@ -234,7 +234,7 @@ routine monitoring and for generating formal diagnostic reports.
 ** Application Specific Monitoring
 *** F2 App
 
-- Application Process Status (<F2 App>):
+- Application Process Status:
 
   #+BEGIN_SRC sh
     pids=$(pgrep -f "F2-App" | grep -v "sh -c")
@@ -247,7 +247,7 @@ routine monitoring and for generating formal diagnostic reports.
 
    #+RESULTS:
 
- - Application Logs (<F2 App>):
+- Application Logs:
 
    #+BEGIN_SRC sh
      tail -n 10 /home/nvidia/projects/F2-App/logs/app.log
@@ -258,7 +258,7 @@ routine monitoring and for generating formal diagnostic reports.
 
    #+end_example
 
- - Application Resource Usage (<F2 App>):
+- Application Resource Usage:
 
     #+BEGIN_SRC sh
      ps -aux | grep F2-App
@@ -268,7 +268,7 @@ routine monitoring and for generating formal diagnostic reports.
 
 *** F2 App fanstel ble
 
-- Application Process Status (<F2 App fanstel ble>):
+- Application Process Status:
 
   #+BEGIN_SRC sh
     pids=$(pgrep -f "F2_App_fanstel_ble" | grep -v "sh -c")
@@ -281,7 +281,7 @@ routine monitoring and for generating formal diagnostic reports.
 
    #+RESULTS:
 
- - Application Logs (<F2 App fanstelble>):
+- Application Logs:
 
    #+BEGIN_SRC sh
      tail -n 20 /home/nvidia/projects/F2_App_fanstel_ble/logs/ble-app.log
@@ -289,7 +289,7 @@ routine monitoring and for generating formal diagnostic reports.
 
    #+RESULTS:
 
- - Application Resource Usage (<F2 App fanstel ble>):
+- Application Resource Usage:
 
    #+BEGIN_SRC sh
      ps -aux | grep F2_App_fanstel_ble
@@ -299,7 +299,7 @@ routine monitoring and for generating formal diagnostic reports.
 
 *** F2 Crowd Scanning
 
- - Application Process Status (<F2 Crowd Scanning>):
+ - Application Process Status:
 
    #+BEGIN_SRC sh
      pids=$(pgrep -f "F2_Crowd_Scanning" | grep -v "sh -c")
@@ -312,7 +312,7 @@ routine monitoring and for generating formal diagnostic reports.
 
    #+RESULTS:
 
- - Application Logs (<F2 Crowd Scanning>):
+ - Application Logs:
 
    #+BEGIN_SRC sh
      tail -n 20 /home/nvidia/projects/F2_Crowd_Scanning/logs/app.log
@@ -320,7 +320,7 @@ routine monitoring and for generating formal diagnostic reports.
 
    #+RESULTS:
 
- - Application Resource Usage (<F2 Crowd Scanning>):
+ - Application Resource Usage:
 
    #+BEGIN_SRC sh
      ps -aux | grep F2_Crowd_Scanning
@@ -351,6 +351,7 @@ routine monitoring and for generating formal diagnostic reports.
 
 # Local Variables:
 # org-confirm-babel-evaluate: (lambda (lang body) (not (string= lang "elisp")))
+# org-confirm-babel-evaluate: (lambda (lang body) (not (string= lang "sh")))
 # eval: (progn
 #         (when (fboundp 'org-babel-goto-named-src-block)
 #           (org-babel-goto-named-src-block "startup")

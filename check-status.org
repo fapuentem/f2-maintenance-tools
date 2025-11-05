@@ -3,6 +3,7 @@
 #+AUTHOR: Fabricio Puente M.
 #+EMAIL: fpuentem@visiontechconsulting.ca
 #+DATE: <2025-04-07 Mon>
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+EXCLUDE_TAGS: noexport
 #+OPTIONS: email:t tags:nil toc:nil
 #+EXPORT_FILE_NAME: check-status
@@ -17,8 +18,7 @@ When executed, the document automatically:
 
 - Detects the board version.
 - Retrieves the device’s MAC address and serial numbers.
-- Updates the document header fields (`#+SUBTITLE:`, `#+DATE:`,
-  `#+EXPORT_FILE_NAME:`) with device-specific values.
+- Updates the document header fields (#+SUBTITLE:, #+DATE:, #+EXPORT_FILE_NAME:) with device-specific values.
 
 The final exported report (e.g. HTML) provides a comprehensive health overview
 of the controller, including:

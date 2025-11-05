@@ -1,12 +1,19 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Extract MAC address from 'ifconfig' command's output
-mac_address=$(ifconfig eth2 | grep 'ether' | awk '{print $2}')
+for IF in eth1 eth2 eth0; do
+  addr_file="/sys/class/net/$IF/address"
+  if [[ -r "$addr_file" ]]; then
+    mac=$(<"$addr_file")
+    # Validate MAC format like xx:xx:xx:xx:xx:xx
+    if [[ "$mac" =~ ^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$ ]]; then
+      mac_nocolon=${mac//:/}
+      # Lowercase (bash 4+), just in case the MAC comes uppercase
+      printf 'f2_%s\n' "${mac_nocolon,,}"
+      exit 0
+    fi
+  fi
+done
 
-# Replace ':' with nothing to get the required format
-formatted_mac_address=$(echo $mac_address | tr -d ':')
-
-# Add 'f2_' prefix to the MAC address
-result="f2_$formatted_mac_address"
-
-echo $result
+echo "Error: no valid MAC found on eth1, eth2, or eth0." >&2
+exit 1

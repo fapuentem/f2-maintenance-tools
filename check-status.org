@@ -3,7 +3,7 @@
 #+AUTHOR: Fabricio Puente M.
 #+EMAIL: fpuentem@visiontechconsulting.ca
 #+DATE: <2025-04-07 Mon>
-#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/html-theme-readtheorg.setup
 #+EXCLUDE_TAGS: noexport
 #+OPTIONS: email:t tags:nil toc:nil
 #+EXPORT_FILE_NAME: check-status

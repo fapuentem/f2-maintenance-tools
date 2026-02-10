@@ -2,69 +2,79 @@
 set -euo pipefail
 
 # ARGUMENTS
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <mac>" >&2
-  exit 1
-fi
+[ "$#" -eq 1 ] || { echo "Usage: $0 <mac>" >&2; exit 1; }
 
 MAC="$1"
-
-# BUILD TOPIC (wildcards)
+MAC_LABEL="F2-${MAC}"
 TOPIC="tele/f2-${MAC}/sensor-mode/+/+"
 
-# AWS SETTINGS
 ENDPOINT="a35lkm5jyds64h-ats.iot.us-east-1.amazonaws.com"
-
-# CERT DIR
 CERT_DIR="$HOME/projects/F2-App/certs"
 
 CA_FILE="$CERT_DIR/AmazonRootCA1.pem"
-CERT_GLOB="$CERT_DIR"/*-certificate.pem.crt
-KEY_GLOB="$CERT_DIR"/*-private.pem.key
+CERT_FILE=$(ls "$CERT_DIR"/*-certificate.pem.crt 2>/dev/null | head -n1 || true)
+KEY_FILE=$(ls "$CERT_DIR"/*-private.pem.key 2>/dev/null | head -n1 || true)
 
-# RESOLVE CERT FILES (single match expected)
-CERT_FILE=$(ls $CERT_GLOB 2>/dev/null | head -n 1 || true)
-KEY_FILE=$(ls $KEY_GLOB 2>/dev/null | head -n 1 || true)
+[ -f "$CA_FILE" ] || { echo "Missing CA file" >&2; exit 2; }
+[ -n "$CERT_FILE" ] || { echo "Missing certificate file" >&2; exit 3; }
+[ -n "$KEY_FILE"  ] || { echo "Missing private key file" >&2; exit 4; }
 
-# VALIDATION
-[ -f "$CA_FILE" ] || { echo "Missing CA file: $CA_FILE" >&2; exit 2; }
-[ -n "$CERT_FILE" ] || { echo "Missing certificate file in $CERT_DIR" >&2; exit 3; }
-[ -n "$KEY_FILE"  ] || { echo "Missing private key file in $CERT_DIR" >&2; exit 4; }
+declare -A SENSORS
+declare -A CONNECTORS
 
-# DEBUG
+print_summary() {
+  echo
+  echo
+  echo "Summary:"
+  echo
+  echo "$MAC_LABEL:"
+  echo
+
+  mapfile -t conns < <(printf "%s\n" "${!CONNECTORS[@]}" | sort)
+
+  for c in "${conns[@]}"; do
+    mapfile -t nums < <(
+      printf "%s\n" "${!SENSORS[@]}" |
+      awk -F/ -v c="$c" '$1==c {print $2}' |
+      sort -n
+    )
+
+    printf "%s: %d sensors ->" "$c" "${#nums[@]}"
+    for n in "${nums[@]}"; do
+      printf " sensor-%s" "$n"
+    done
+    echo
+  done
+}
+
+trap print_summary INT
+
 echo "Subscribing to topic: $TOPIC"
 echo "Press Ctrl+C to stop"
 echo
 
-# SUBSCRIBE AND DISCOVER (Ctrl+C to stop)
-mosquitto_sub \
-  -h "$ENDPOINT" \
-  -p 8883 \
-  --cafile "$CA_FILE" \
-  --cert  "$CERT_FILE" \
-  --key   "$KEY_FILE" \
-  -q 0 \
-  -t "$TOPIC" \
-  -v \
-| awk '
-{
-  topic = $1
-  n = split(topic, p, "/")
+while read -r topic payload; do
+  # Extract connector and sensor safely
+  connector="${topic%/*}"
+  connector="${connector##*/}"
 
-  j = p[n-1]   # Jx
-  s = p[n]     # sensor-y
-  key = j "/" s
+  sensor="${topic##*/}"
+  num="${sensor#sensor-}"
 
-  if (!(key in seen)) {
-    seen[key] = 1
-    count[j]++
-    list[j] = list[j] " " s
-    printf("Discovered %s %s\n", j, s)
-  }
-}
-END {
-  print "\nSummary:"
-  for (j in count) {
-    printf("  %s: %d sensors ->%s\n", j, count[j], list[j])
-  }
-}'
+  key="$connector/$num"
+
+  if [[ -z "${SENSORS[$key]:-}" ]]; then
+    SENSORS["$key"]=1
+    CONNECTORS["$connector"]=1
+    echo "Discovered $connector sensor-$num"
+  fi
+done < <(
+  mosquitto_sub \
+    -h "$ENDPOINT" \
+    -p 8883 \
+    --cafile "$CA_FILE" \
+    --cert "$CERT_FILE" \
+    --key "$KEY_FILE" \
+    -t "$TOPIC" \
+    -v
+)

@@ -13,7 +13,6 @@ MAC="$1"
 CONNECTOR_RAW="$2"
 STRIKE="$3"
 
-# Normalize connector (J1, J2, etc.)
 CONNECTOR="${CONNECTOR_RAW^^}"
 
 # -------------------------
@@ -26,16 +25,11 @@ PUB_TOPIC="cmnd/f2-${MAC}/access-control-mode/${CONNECTOR}/strike-${STRIKE}"
 # AWS IOT SETTINGS
 # -------------------------
 ENDPOINT="a35lkm5jyds64h-ats.iot.us-east-1.amazonaws.com"
-
 CERT_DIR="$HOME/projects/F2-App/certs"
 
 CA_FILE="$CERT_DIR/AmazonRootCA1.pem"
-CERT_FILE_GLOB="$CERT_DIR"/*-certificate.pem.crt
-KEY_FILE_GLOB="$CERT_DIR"/*-private.pem.key
-
-# Resolve globs to concrete files
-CERT_FILE=$(ls $CERT_FILE_GLOB 2>/dev/null | head -n 1)
-KEY_FILE=$(ls $KEY_FILE_GLOB 2>/dev/null | head -n 1)
+CERT_FILE=$(ls "$CERT_DIR"/*-certificate.pem.crt 2>/dev/null | head -n1 || true)
+KEY_FILE=$(ls "$CERT_DIR"/*-private.pem.key 2>/dev/null | head -n1 || true)
 
 # -------------------------
 # VALIDATION
@@ -45,16 +39,32 @@ KEY_FILE=$(ls $KEY_FILE_GLOB 2>/dev/null | head -n 1)
 [ -f "$KEY_FILE" ]  || { echo "Missing private key file"; exit 4; }
 
 # -------------------------
-# DEBUG INFO
+# DEBUG
 # -------------------------
 echo "Subscribe topic: $SUB_TOPIC"
 echo "Publish topic : $PUB_TOPIC"
 echo
-echo "Waiting for messages. Press Ctrl+C to stop"
+echo "Listening for responses. Press Ctrl+C to stop."
 echo
 
 # -------------------------
-# START SUBSCRIBER (BACKGROUND)
+# PUBLISH AFTER SHORT DELAY (BACKGROUND)
+# -------------------------
+(
+  sleep 1
+  mosquitto_pub \
+    -h "$ENDPOINT" \
+    -p 8883 \
+    --cafile "$CA_FILE" \
+    --cert  "$CERT_FILE" \
+    --key   "$KEY_FILE" \
+    -q 0 \
+    -t "$PUB_TOPIC" \
+    -n
+) &
+
+# -------------------------
+# SUBSCRIBE (FOREGROUND)
 # -------------------------
 mosquitto_sub \
   -h "$ENDPOINT" \
@@ -64,32 +74,4 @@ mosquitto_sub \
   --key   "$KEY_FILE" \
   -q 0 \
   -t "$SUB_TOPIC" \
-  -v &
-SUB_PID=$!
-
-# Ensure subscriber is killed on exit
-cleanup() {
-  kill "$SUB_PID" 2>/dev/null || true
-}
-trap cleanup EXIT
-
-# Give the subscriber a moment to connect
-sleep 1
-
-# -------------------------
-# PUBLISH COMMAND
-# -------------------------
-mosquitto_pub \
-  -h "$ENDPOINT" \
-  -p 8883 \
-  --cafile "$CA_FILE" \
-  --cert  "$CERT_FILE" \
-  --key   "$KEY_FILE" \
-  -q 0 \
-  -t "$PUB_TOPIC" \
-  -n
-
-# -------------------------
-# WAIT (subscriber keeps running)
-# -------------------------
-wait "$SUB_PID"
+  -v

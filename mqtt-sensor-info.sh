@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ARGUMENTS
+# Arguments
 [ "$#" -eq 1 ] || { echo "Usage: $0 <mac>" >&2; exit 1; }
 
 MAC="$1"
 MAC_LABEL="F2-${MAC}"
+
+# Topic
 TOPIC="tele/f2-${MAC}/sensor-mode/+/+"
 
+# AWS settings
 ENDPOINT="a35lkm5jyds64h-ats.iot.us-east-1.amazonaws.com"
 CERT_DIR="$HOME/projects/F2-App/certs"
 
@@ -22,6 +25,7 @@ KEY_FILE=$(ls "$CERT_DIR"/*-private.pem.key 2>/dev/null | head -n1 || true)
 declare -A SENSORS
 declare -A CONNECTORS
 
+# Print sensor data summary
 print_summary() {
   echo
   echo
@@ -68,6 +72,7 @@ while read -r topic payload; do
     CONNECTORS["$connector"]=1
     echo "Discovered $connector sensor-$num"
   fi
+# Subscribe to topics
 done < <(
   mosquitto_sub \
     -h "$ENDPOINT" \
